@@ -79,5 +79,18 @@ Highcharts.getJSON(
 );
 </script>
 
+<div>
+  <div id="container" style="height: 400px; min-width: 310px"></div>
+  <input id="user" value"">
+</div>
 
-<div id="container" style="height: 400px; min-width: 310px"></div>
+<script>
+ /* todo set to run after document loaded */
+ function loadUrlParams() {
+   var url_string = window.location.href; //window.location.href
+   var url = new URL(url_string);
+   var c = url.searchParams.get("name");
+   document.getElementById("user").value = c;
+ }
+ loadUrlParams();
+</script>
