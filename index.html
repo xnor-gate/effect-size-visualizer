@@ -75,13 +75,15 @@
    return x_values.map(x => [x, bell_curve(x, mean, sigma)]);
  }
 
- function arange(x_min, x_max, num_points=100){
+ function arange(x_min, x_max, num_points=1000){
    const range = [...Array(num_points).keys()];
    const x_values = range.map(i => x_min + i * (x_max - x_min) / (num_points - 1));
    return x_values;
  }
 
  param_dict = {mean1: 161.5, sigma1: 6.0, mean2: 175.4, sigma2: 7.0}
+
+ //param_dict = {mean1: 1, sigma1: 3, mean2: 2, sigma2: 15}
 
  make_chart(param_dict)
 
@@ -108,6 +110,10 @@
    coords2 = bell_curve_at_points(x_values, mean2, sigma2);
 
    Highcharts.chart('container', {
+   
+     chart: {
+          type: 'area'
+     },
 
      title: {
        text: 'A bell curve'
@@ -116,17 +122,18 @@
      subtitle: {
        text: 'Yup it\'s a bell curve'
      },
-
+	 
      yAxis: {
        title: {
          text: 'Probability density'
-       }
+       },
      },
 
      xAxis: {
-       accessibility: {
-         rangeDescription: '-3 sigma to +3 sigma'
-       }
+	   title: {
+         text: 'Measurement of interest'
+       },
+
      },
 
      legend: {
@@ -137,20 +144,26 @@
 
      plotOptions: {
        series: {
+	     animation:false,
          label: {
-           connectorAllowed: false
-         },
-       }
+           connectorAllowed: false,
+		   style: {color: 'black'}
+		 },
+		 fillOpacity: 0.1
+	   }
      },
 
-     series: [{
+     series: [
+	 {
        name: 'Bell curve 1',
        data: coords1,
+	   color: 'rgba(0,0,255,1)',
      },
-              {
-                name: 'Bell curve 2',
-                data: coords2,
-              }],
+	 {
+	   name: 'Bell curve 2',
+	   data: coords2,
+	   color: 'rgba(255,0,0,1)',
+	 }],
 
      responsive: {
        rules: [{
@@ -167,7 +180,20 @@
        }]
      },
 
-     tooltip: {split: true, share:true}
+     tooltip: {
+		split: true, 
+        formatter: function () {
+            // The first returned item is the header, subsequent items are the
+            // points
+            return ['<b>' + Highcharts.numberFormat(this.x, 2) + '</b>'].concat(
+                this.points ?
+                    this.points.map(function (point) {
+                        return point.series.name + ': ' + Highcharts.numberFormat(point.y, 3);
+                    }) : []
+            );
+        },
+		valueDecimals: 3,
+	}
 
    });
  }
