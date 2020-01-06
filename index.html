@@ -204,7 +204,7 @@
    }
 
    const urlSuffix = new URLSearchParams(obj).toString();
-   window.history.pushState(null, null, '/index.html?'+urlSuffix);
+   window.history.pushState(null, null, location.pathname + '?' + urlSuffix);
  }
  function onChange() {
    let formData = getFormData();
