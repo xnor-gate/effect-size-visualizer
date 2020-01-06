@@ -81,16 +81,43 @@ Highcharts.getJSON(
 
 <div>
   <div id="container" style="height: 400px; min-width: 310px"></div>
-  <input id="user" value"">
+  <form id="form">
+    <input id="user" name="user" value="test" onblur="updateUrlParams()">
+    <input id="val1" name="val1" value="" onblur="updateUrlParams()">
+    <input id="val2" name="val2" value="" onblur="updateUrlParams()">
+  </form>
 </div>
 
 <script>
- /* todo set to run after document loaded */
+ /* TODO: set to run after document loaded */
+ function parseUrlParams() {
+   //https://stackoverflow.com/a/52539264
+   let entries = new URLSearchParams(location.search);
+   let result = {}
+   for(let entry of entries) { // each 'entry' is a [key, value] tupple
+     const [key, value] = entry;
+     result[key] = value;
+   }
+   return result;
+ }
  function loadUrlParams() {
-   var url_string = window.location.href; //window.location.href
-   var url = new URL(url_string);
-   var c = url.searchParams.get("name");
-   document.getElementById("user").value = c;
+   let params = parseUrlParams();
+   for (let key in params) {
+     let value = params[key];
+     //TODO: handle parameters that don't correspond to input ids
+     document.getElementById(key).value = params[key];
+   }
+ }
+ function updateUrlParams() {
+   const allFormData = Object.fromEntries(new FormData(document.getElementById('form')));
+   let obj = {};
+   for (let key in allFormData) {
+     if (allFormData[key]) {
+       obj[key] = allFormData[key];
+     }
+   }
+   const urlSuffix = new URLSearchParams(obj).toString();
+   window.history.pushState(null, null, '/index.html?'+urlSuffix);
  }
  loadUrlParams();
 </script>
