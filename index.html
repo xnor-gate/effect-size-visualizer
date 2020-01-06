@@ -82,9 +82,10 @@ Highcharts.getJSON(
 <div>
   <div id="container" style="height: 400px; min-width: 310px"></div>
   <form id="form">
-    <input id="user" name="user" value="test" onblur="updateUrlParams()">
-    <input id="val1" name="val1" value="" onblur="updateUrlParams()">
-    <input id="val2" name="val2" value="" onblur="updateUrlParams()">
+    <input id="mean1" name="mean1" value="test" onblur="onChange()">
+    <input id="sigma1" name="sigma1" value="" onblur="onChange()">
+    <input id="mean2" name="mean2" value="" onblur="onChange()">
+    <input id="sigma2" name="sigma2" value="" onblur="onChange()">
   </form>
 </div>
 
@@ -108,16 +109,40 @@ Highcharts.getJSON(
      document.getElementById(key).value = params[key];
    }
  }
+ function getFormData() {
+   return Object.fromEntries(new FormData(document.getElementById('form')));
+ }
  function updateUrlParams() {
-   const allFormData = Object.fromEntries(new FormData(document.getElementById('form')));
+   let formData = getFormData();
+
+   //exclude empty label values from the url
    let obj = {};
-   for (let key in allFormData) {
-     if (allFormData[key]) {
-       obj[key] = allFormData[key];
+   for (let key in formData) {
+     if (formData[key]) {
+       obj[key] = formData[key];
      }
    }
+
    const urlSuffix = new URLSearchParams(obj).toString();
    window.history.pushState(null, null, '/index.html?'+urlSuffix);
+ }
+ function onChange() {
+   let formData = getFormData();
+
+   //TODO: better validation
+   //check that all values are numeric before running
+   let numericInputs = ['mean1', 'sigma1', 'mean2', 'sigma2'];
+   for (let input of numericInputs) {
+     console.log(formData[input]);
+     if (isNaN(formData[input])) {
+       return;
+     }
+   }
+   draw(formData);
+   updateUrlParams();
+ }
+ function draw(o) {
+   alert(JSON.stringify(o));
  }
  loadUrlParams();
 </script>
