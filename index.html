@@ -213,12 +213,14 @@
    //check that all values are numeric before running
    let numericInputs = ['mean1', 'sigma1', 'mean2', 'sigma2'];
    for (let input of numericInputs) {
-     console.log(formData[input]);
-     if (isNaN(formData[input])) {
-       return;
-     } else {
+     //checking if string is a valid float is hard!
+     //eg isNaN returns false for ""
+     //https://stackoverflow.com/a/52986361
+     if (!isNaN(parseFloat(formData[input])) && isFinite(formData[input])) {
        //parse
        formData[input] = parseFloat(formData[input]); //passing in strings causes weird results
+     } else {
+       return;
      }
    }
    make_chart(formData);
