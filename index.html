@@ -1,83 +1,53 @@
-<script src="https://code.highcharts.com/stock/highstock.js"></script>
-<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
-<script>
- var seriesOptions = [],
-    seriesCounter = 0,
-    names = ['MSFT', 'AAPL', 'GOOG'];
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
-/**
- * Create the chart when all data is loaded
- * @returns {undefined}
- */
-function createChart() {
-
-    Highcharts.stockChart('container', {
-
-        rangeSelector: {
-            selected: 4
-        },
-
-        yAxis: {
-            labels: {
-                formatter: function () {
-                    return (this.value > 0 ? ' + ' : '') + this.value + '%';
-                }
-            },
-            plotLines: [{
-                value: 0,
-                width: 2,
-                color: 'silver'
-            }]
-        },
-
-        plotOptions: {
-            series: {
-                compare: 'percent',
-                showInNavigator: true
-            }
-        },
-
-        tooltip: {
-            pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
-            valueDecimals: 2,
-            split: true
-        },
-
-        series: seriesOptions
-    });
+<style>
+.highcharts-figure, .highcharts-data-table table {
+    min-width: 360px;
+    max-width: 800px;
+    margin: 1em auto;
 }
 
-function success(data) {
-    var name = this.url.match(/(msft|aapl|goog)/)[0].toUpperCase();
-    var i = names.indexOf(name);
-    seriesOptions[i] = {
-        name: name,
-        data: data
-    };
-
-    // As we're loading the data asynchronously, we don't know what order it
-    // will arrive. So we keep a counter and create the chart when all the data is loaded.
-    seriesCounter += 1;
-
-    if (seriesCounter === names.length) {
-        createChart();
-    }
+.highcharts-data-table table {
+	font-family: Verdana, sans-serif;
+	border-collapse: collapse;
+	border: 1px solid #EBEBEB;
+	margin: 10px auto;
+	text-align: center;
+	width: 100%;
+	max-width: 500px;
 }
+.highcharts-data-table caption {
+    padding: 1em 0;
+    font-size: 1.2em;
+    color: #555;
+}
+.highcharts-data-table th {
+	font-weight: 600;
+    padding: 0.5em;
+}
+.highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
+    padding: 0.5em;
+}
+.highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
+    background: #f8f8f8;
+}
+.highcharts-data-table tr:hover {
+    background: #f1f7ff;
+}
+</style>
 
-Highcharts.getJSON(
-    'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/msft-c.json',
-    success
-);
-Highcharts.getJSON(
-    'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/aapl-c.json',
-    success
-);
-Highcharts.getJSON(
-    'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/goog-c.json',
-    success
-);
-</script>
+<figure class="highcharts-figure">
+    <div id="container"></div>
+    <p class="highcharts-description">
+        Bell curve drawing.
+    </p>
+</figure>
+
+
 
 <div>
   <div id="container" style="height: 400px; min-width: 310px"></div>
@@ -92,6 +62,116 @@ Highcharts.getJSON(
     <input id="sigma2" name="sigma2" value="" onblur="onChange()"><br>
   </form>
 </div>
+
+
+<script>
+ function bell_curve(x, mean=0.0, sigma=1.0) {
+   const gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
+   const z = (x - mean) / sigma;
+   return gaussianConstant * Math.exp(-0.5 * z * z) / sigma;
+ }
+
+ function bell_curve_at_points(x_values, mean, sigma){
+   return x_values.map(x => [x, bell_curve(x, mean, sigma)]);
+ }
+
+ function arange(x_min, x_max, num_points=100){
+   const range = [...Array(num_points).keys()];
+   const x_values = range.map(i => x_min + i * (x_max - x_min) / (num_points - 1));
+   return x_values;
+ }
+
+ param_dict = {mean1: 161.5, sigma1: 6.0, mean2: 175.4, sigma2: 7.0}
+
+ make_chart(param_dict)
+
+ function make_chart(param_dict){
+   const mean1 = param_dict.mean1;
+   const sigma1 = param_dict.sigma1;
+
+   const mean2 = param_dict.mean2;
+   const sigma2= param_dict.sigma2;
+
+   const sigma_spread = 3.0;
+   min1 = mean1 - sigma_spread * sigma1;
+   min2 = mean2 - sigma_spread * sigma2;
+
+   max1 = mean1 + sigma_spread * sigma1;
+   max2 = mean2 + sigma_spread * sigma2;
+
+   min_both = Math.min(min1, min2);
+   max_both = Math.max(max1, max2);
+
+   const x_values = arange(min_both, max_both);
+
+   coords1 = bell_curve_at_points(x_values, mean1, sigma1);
+   coords2 = bell_curve_at_points(x_values, mean2, sigma2);
+
+   Highcharts.chart('container', {
+
+     title: {
+       text: 'A bell curve'
+     },
+
+     subtitle: {
+       text: 'Yup it\'s a bell curve'
+     },
+
+     yAxis: {
+       title: {
+         text: 'Probability density'
+       }
+     },
+
+     xAxis: {
+       accessibility: {
+         rangeDescription: '-3 sigma to +3 sigma'
+       }
+     },
+
+     legend: {
+       layout: 'vertical',
+       align: 'right',
+       verticalAlign: 'middle'
+     },
+
+     plotOptions: {
+       series: {
+         label: {
+           connectorAllowed: false
+         },
+       }
+     },
+
+     series: [{
+       name: 'Bell curve 1',
+       data: coords1,
+     },
+              {
+                name: 'Bell curve 2',
+                data: coords2,
+              }],
+
+     responsive: {
+       rules: [{
+         condition: {
+           maxWidth: 500
+         },
+         chartOptions: {
+           legend: {
+             layout: 'horizontal',
+             align: 'center',
+             verticalAlign: 'bottom'
+           }
+         }
+       }]
+     },
+
+     tooltip: {split: true, share:true}
+
+   });
+ }
+</script>
 
 <script>
  /* TODO: set to run after document loaded */
@@ -142,11 +222,8 @@ Highcharts.getJSON(
        return;
      }
    }
-   draw(formData);
+   make_chart(formData);
    updateUrlParams();
- }
- function draw(o) {
-   alert(JSON.stringify(o));
  }
  loadUrlParams();
 </script>
