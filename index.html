@@ -216,6 +216,9 @@
      console.log(formData[input]);
      if (isNaN(formData[input])) {
        return;
+     } else {
+       //parse
+       formData[input] = parseFloat(formData[input]); //passing in strings causes weird results
      }
    }
    make_chart(formData);
