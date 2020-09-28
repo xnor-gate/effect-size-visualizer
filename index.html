@@ -48,6 +48,12 @@
     </p>
   </figure>
   <form id="form">
+    <label for="title">Title</label>
+    <input id="title" name="title" value="" onblur="onChange()"><br>
+    <label for="subtitle">Subtitle</label>
+    <input id="subtitle" name="subtitle" value="" onblur="onChange()"><br>
+    <label for="units">Units</label>
+    <input id="units" name="units" value="" onblur="onChange()"><br>
     <label for="mean1">Mean1</label>
     <input id="mean1" name="mean1" value="" onblur="onChange()"><br>
     <label for="sigma1">Sigma1</label>
@@ -106,19 +112,19 @@
    coords2 = bell_curve_at_points(x_values, mean2, sigma2);
 
    Highcharts.chart('container', {
-   
+
      chart: {
           type: 'area'
      },
 
      title: {
-       text: 'A bell curve'
+       text: param_dict.title || 'A bell curve'
      },
 
      subtitle: {
-       text: 'Yup it\'s a bell curve'
+       text: param_dict.subtitle || 'Yup it\'s a bell curve'
      },
-	 
+
      yAxis: {
        title: {
          text: 'Probability density'
@@ -127,7 +133,7 @@
 
      xAxis: {
 	   title: {
-         text: 'Measurement of interest'
+         text: param_dict.units || 'Measurement of interest'
        },
 
      },
@@ -177,7 +183,7 @@
      },
 
      tooltip: {
-		split: true, 
+		split: true,
         formatter: function () {
             // The first returned item is the header, subsequent items are the
             // points
